@@ -47,3 +47,23 @@ async def login(request: Request, loginUser: UserIn = Body(...)) -> JSONResponse
     response = JSONResponse(content={"token": token})
 
     return response
+
+
+@router.get("/list", response_description="List all users")
+async def list_users(
+    request: Request, user_data=Depends(auth_handler.auth_wrapper)
+) -> UsersList:
+    """Get the list of the users for an authenticated user
+
+        Test using httpie:
+    http 127.0.0.1:8000/users/login username="marko-1" password="marko-1-1234"
+    ...
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjA5NzY4MTIsImlhdCI6MTc2MDk3NTAxMiwic3ViIjoiOWRlOTg3OTQtYWY0My00YjM0LTg1OWYtMTBmYjQ0YWQyMDAwOm1hcmtvLTEifQ.1GszX2tAUuDyy1DQkD9VDE2okL5k0U3dtrr4vkLrnN8"
+    }
+
+    GET 127.0.0.1:8000/users/list "Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjA5NzY4MTIsImlhdCI6MTc2MDk3NTAxMiwic3ViIjoiOWRlOTg3OTQtYWY0My00YjM0LTg1OWYtMTBmYjQ0YWQyMDAwOm1hcmtvLTEifQ.1GszX2tAUuDyy1DQkD9VDE2okL5k0U3dtrr4vkLrnN8"
+    ...
+    """
+    users = users_db.get_users_out()
+    return UsersList(users=users)
